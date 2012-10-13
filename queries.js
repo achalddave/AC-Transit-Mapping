@@ -56,6 +56,8 @@ function getRoutes(lat, lon, radius, callback) {
   routesQuery += " JOIN stop_times using (stop_id) ";
   routesQuery += " JOIN trips using (trip_id) ";
 
+  console.log(routesQuery);
+
   var connection = mysql.createConnection({
     "hostname": "localhost",
     "user": "root",
@@ -71,6 +73,7 @@ function getRoutes(lat, lon, radius, callback) {
       throw err;
     }
 
+    console.log(rows);
     callback(rows);
   });
 }

@@ -51,6 +51,7 @@ $(function() {
             strokeColor : "#FF0000"
           });
 
+          console.log("Setting polyline");
           polyline.setMap(map);
         }
       }

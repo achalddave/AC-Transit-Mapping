@@ -135,6 +135,7 @@ function getPredictionsFromStops(lat, lon, radius, callback) {
 
 function getRoutes(stops) {
   stops.forEach(function(stop) {
+    console.log("STOP: "+stop);
     // stop = e.g. 50400
     // vehicle
     var options = {
@@ -144,13 +145,12 @@ function getRoutes(stops) {
     http.get(options,function(res){
       var myData = "";
       res.on('data',function(chunk){
-        myData += chunk;
-      });
-      res.on('end', function() {
-        parser.parseString(myData, function(err, result) {
-          if (err) {
-              console.log("error in getRoutes()");
-              throw err;
+
+        parser.parseString(chunk,function(err,result){
+          try{
+            for(var i in result['body']['predictions']){
+              vehiclePrediction(result['body']['predictions'][i]['$']['routeTag']);
+            }
           }
           else {
             for(var i in result.body.predictions){
@@ -164,20 +164,38 @@ function getRoutes(stops) {
 }
 
 function vehiclePrediction(routeId) {
+  console.log(routeId);
   var options = {
     host: 'webservices.nextbus.com',
-    path: path.replace('<routeId>',routeId)
+    //path: path.replace('<routeId>',routeId)
+    path:"/service/publicXMLFeed?command=vehicleLocations&a=actransit&r="+routeId+"&t=0"
   }
   http.get(options, function(res){
     res.setEncoding('utf8');
     var myData = "";
     res.on('data',function(chunk){
-      myData += chunk;
-    }).on('end', function() {
-      parser.parseString(myData,function(err,result){
-        if (err) {
-          console.log("fail in vehiclePrediction()");
-          throw err;
+      parser.parseString(chunk,function(err,result){
+        result = result['body']['vehicle'];
+        try{
+          for(var i in result){
+            var bus = result[i]['$'];
+            console.log(bus['id']);
+            var output = "";
+            var busId = bus['id'];
+            output+="Bus ID: "+busId+", ";
+            var routeTag = bus['routeTag'];
+            output+="Route Tag: "+routeTag+", ";
+            var dirTag = bus['out'];
+            var lat = bus['lat'];
+            output+="Location: ("+lat+",";
+            var lon = bus['lon'];
+            output+=lon+"), ";
+            var secsPassed = bus['secsSinceReport'];
+            output+="Time Passed: "+secsPassed+", ";
+            var predictable = bus['predictable'];
+            output+= "Predictable: "+predictable;
+            console.log(output);
+          }
         }
         else {
           for (var i in result.body.vehicle) {

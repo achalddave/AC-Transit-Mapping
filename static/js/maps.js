@@ -20,11 +20,13 @@ $(function() {
 
   function plotRoutes(lat, lon) {
 
+    console.log(new Date().getSeconds());
     $.get('api/routes', {
       lat : lat,
       lon : lon
     }, function(data, textStatus, jqXHR) {
-      console.log(routes);
+      console.log(new Date().getSeconds());
+      console.log(data);
     });
 
     // get all the stops

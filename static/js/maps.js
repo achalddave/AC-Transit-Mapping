@@ -32,10 +32,12 @@ $(function() {
         var point = data[i];
         path.push(new google.maps.LatLng(point.lat, point.lon));
         if (i == data.length - 1) {
-          new google.maps.Polyline({
+          var polyline = new google.maps.Polyline({
             path : path,
             strokeColor : "#FF0000"
-          })
+          });
+
+          polyline.setMap(map);
         }
       }
     });

@@ -20,6 +20,7 @@ function getStopsQuery(lat, lon, radius) {
   stopsQuery      += " AND ";
   stopsQuery      += "stop_lon BETWEEN " + minLon + " AND " + maxLon;
 
+  console.log(stopsQuery);
   return stopsQuery;
 }
 
@@ -56,6 +57,7 @@ function getStops(lat, lon, radius, callback) {
 }
 
 function getRoutePaths(lat, lon, radius, callback) {
+  var radius = typeof radius == "undefined" ? 0.01 : radius;
   var stopsQuery = getStopsQuery(lat, lon, radius)
 
   var routesQuery = "SELECT route_id, trip_headsign, lat, lon, stop_code from (" + stopsQuery + ")a ";

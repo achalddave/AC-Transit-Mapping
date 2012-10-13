@@ -33,6 +33,7 @@ app.get("/test", function(req, res) {
 app.get("/api/stops", function(req, res) {
   console.log("Hey.");
   res.set('Content-Type', 'application/json');
+  console.log(req.query);
   queries.getStops(req.query.lat, req.query.lon, req.query.radius, function(data) { res.send(data); });
 });
 

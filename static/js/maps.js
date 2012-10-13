@@ -10,7 +10,7 @@ $(function() {
 
   function mapSetup(position) {
     var mapOptions = {
-      center: new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
+      center: new google.maps.LatLng(37.87, -122.2705),
       zoom: 15,
       mapTypeId: google.maps.MapTypeId.ROADMAP
     }

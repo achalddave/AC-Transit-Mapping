@@ -109,5 +109,14 @@ $(function() {
         setTimeout(drop, i*200);
       }
     });
+
+    // get routes by keyword
+    $.get('api/keywordRoute', {
+      keyword : '51b'
+    }, function(data) {
+      // do stuff with data
+      // data is an array of objects with the following keys:
+      //    route_id, shape_pt_lat, shape_pt_lon, shape_pt_sequence
+    });
   }
 })

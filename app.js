@@ -44,3 +44,7 @@ app.get("/api/routes", function(req, res) {
 app.get("/api/prediction", function(req, res) {
   queries.getPredictionsFromStops(req.query.lat, req.query.lon, req.query.radius, function(data) { res.send(data); });
 });
+
+app.get("/api/keywordRoute", function(req, res) {
+  queries.getRoutesByKeyword(req.query.keyword, function(data) { res.send(data); });
+});

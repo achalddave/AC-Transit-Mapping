@@ -152,10 +152,8 @@ function getRoutes(stops) {
               vehiclePrediction(result['body']['predictions'][i]['$']['routeTag']);
             }
           }
-          else {
-            for(var i in result.body.predictions){
-              vehiclePrediction(result.body.predictions[i]['$']['routeTag']);
-            }
+          catch(e){
+            console.log("NextBus getRoutes error");
           }
         });
       });
@@ -197,13 +195,9 @@ function vehiclePrediction(routeId) {
             console.log(output);
           }
         }
-        else {
-          for (var i in result.body.vehicle) {
-            var lat = result.body.vehicle[i]['$'].lat;
-            var lon = result.body.vehicle[i]['$'].lon;
-            var secsSinceReport = result.body.vehicle[i]['$'].secsSinceReport;
-            console.log("("+lat+", "+lon+") since "+secsSinceReport+" sec ago");
-          }
+        catch(e){
+          console.log("Error in getting bus data");
+          console.log("NextBus vehiclePrediction data error");
         }
       });
     }).on("error",function(e){

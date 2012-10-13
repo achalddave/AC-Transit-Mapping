@@ -35,7 +35,7 @@ function getStops(lat, lon, radius, callback) {
 
   connection.connect();
 
-  var radius = typeof radius == "undefined" ? 0.01 : radius;
+  var radius = typeof radius == "undefined" ? 0.02 : radius;
 
   var query = getStopsQuery(lat, lon, radius);
   /*
@@ -52,12 +52,13 @@ function getStops(lat, lon, radius, callback) {
       throw err;
     }
 
+    console.log(rows);
     callback(rows);
   });
 }
 
 function getRoutePaths(lat, lon, radius, callback) {
-  var radius = typeof radius == "undefined" ? 0.01 : radius;
+  var radius = typeof radius == "undefined" ? 0.02 : radius;
   var stopsQuery = getStopsQuery(lat, lon, radius)
 
   var routesQuery = "SELECT route_id, trip_headsign, lat, lon, stop_code from (" + stopsQuery + ")a ";

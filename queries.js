@@ -134,6 +134,7 @@ function getPredictionsFromStops(lat, lon, radius, callback) {
 
 function getRoutes(stops) {
   stops.forEach(function(stop) {
+    console.log("STOP: "+stop);
     // stop = e.g. 50400
     // vehicle
     var options = {
@@ -145,8 +146,8 @@ function getRoutes(stops) {
       res.on('data',function(chunk){
         parser.parseString(chunk,function(err,result){
           try{
-            for(var i in result){
-              vehiclePrediction(result[i]['routeTag']);
+            for(var i in result['body']['predictions']){
+              vehiclePrediction(result['body']['predictions'][i]['$']['routeTag']);
             }
           }
           catch(e){
@@ -159,29 +160,34 @@ function getRoutes(stops) {
 }
 
 function vehiclePrediction(routeId) {
+  console.log(routeId);
   var options = {
     host: 'webservices.nextbus.com',
-    path: path.replace('<routeId>',routeId)
+    //path: path.replace('<routeId>',routeId)
+    path:"/service/publicXMLFeed?command=vehicleLocations&a=actransit&r="+routeId+"&t=0"
   }
   http.get(options, function(res){
     res.setEncoding('utf8');
     res.on('data',function(chunk){
       parser.parseString(chunk,function(err,result){
+        result = result['body']['vehicle'];
         try{
           for(var i in result){
+            var bus = result[i]['$'];
+            console.log(bus['id']);
             var output = "";
-            var busId = result['id'];
+            var busId = bus['id'];
             output+="Bus ID: "+busId+", ";
-            var routeTag = result['routeTag'];
+            var routeTag = bus['routeTag'];
             output+="Route Tag: "+routeTag+", ";
-            var dirTag = result['out'];
-            var lat = result['lat'];
+            var dirTag = bus['out'];
+            var lat = bus['lat'];
             output+="Location: ("+lat+",";
-            var lon = result['lon'];
+            var lon = bus['lon'];
             output+=lon+"), ";
-            var secsPassed = result['secsSinceLastReport'];
+            var secsPassed = bus['secsSinceReport'];
             output+="Time Passed: "+secsPassed+", ";
-            var predictable = result['predictable'];
+            var predictable = bus['predictable'];
             output+= "Predictable: "+predictable;
             console.log(output);
           }

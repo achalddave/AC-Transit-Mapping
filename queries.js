@@ -3,7 +3,8 @@ var mysql = require("mysql"),
     http = require('http'),
     url = require('url'),
     xml2js = require('xml2js'),
-    parser = new xml2js.Parser();
+    parser = new xml2js.Parser(),
+    fs = require('fs');
 
 var path = "/service/publicXMLFeed?command=vehicleLocations&a=actransit&r=<routeId>&t=0";
 var thinningFactor = 3;
@@ -29,7 +30,7 @@ var pool = poolModule.Pool({
 });
 
 // radius from current location to check stops for
-var tolerance = 0.008;
+var tolerance = 0.012;
 
 function getStopsQuery(lat, lon, radius) {
   var lat = parseFloat(lat),
@@ -141,9 +142,12 @@ function getRoutes(stops) {
       path: '/service/publicXMLFeed?command=predictions&a=actransit&stopId='+stop
     }
     http.get(options,function(res){
-      res.setEncoding('utf8');
+      var myData = "";
       res.on('data',function(chunk){
-        parser.parseString(chunk,function(err,result){
+        myData += chunk;
+      });
+      res.on('end', function() {
+        parser.parseString(myData, function(err, result) {
           if (err) {
               console.log("error in getRoutes()");
               throw err;
@@ -154,7 +158,7 @@ function getRoutes(stops) {
             }
           }
         });
-      })
+      });
     });
   });
 }
@@ -166,11 +170,14 @@ function vehiclePrediction(routeId) {
   }
   http.get(options, function(res){
     res.setEncoding('utf8');
+    var myData = "";
     res.on('data',function(chunk){
-      parser.parseString(chunk,function(err,result){
+      myData += chunk;
+    }).on('end', function() {
+      parser.parseString(myData,function(err,result){
         if (err) {
-            console.log("fail in vehiclePrediction()");
-            throw err;
+          console.log("fail in vehiclePrediction()");
+          throw err;
         }
         else {
           for (var i in result.body.vehicle) {
@@ -181,11 +188,9 @@ function vehiclePrediction(routeId) {
           }
         }
       });
-      });
-      res.on('end',function(){
-      });
     }).on("error",function(e){
       console.log("Error: "+e.message);
+    });
   });
 }
 

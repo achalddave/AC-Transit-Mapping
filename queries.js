@@ -27,11 +27,13 @@ var pool = poolModule.Pool({
     log : false
 });
 
+var tolerance = 0.02;
+
 function getStopsQuery(lat, lon, radius) {
   var lat = parseFloat(lat),
       lon = parseFloat(lon);
 
-  var radius = typeof radius == "undefined" ? 0.05 : radius;
+  var radius = typeof radius == "undefined" ? tolerance : radius;
   var minLat = lat-radius,
       maxLat = lat+radius,
       minLon = lon-radius,
@@ -71,7 +73,7 @@ function getStops(lat, lon, radius, callback) {
 }
 
 function getRoutePaths(lat, lon, radius, callback) {
-  var radius = typeof radius == "undefined" ? 0.05 : radius;
+  var radius = typeof radius == "undefined" ? tolerance : radius;
   var stopsQuery = getStopsQuery(lat, lon, radius)
 
   var routesQuery = "SELECT route_id, trip_headsign, lat, lon, stop_code from (" + stopsQuery + ")a ";

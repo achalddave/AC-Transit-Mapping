@@ -10,7 +10,7 @@ $(function() {
 
   function mapSetup(position) {
     var mapOptions = {
-      center: new google.maps.LatLng(37.87, -122.2705),
+      center: new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
       zoom: 15,
       mapTypeId: google.maps.MapTypeId.ROADMAP
     }
@@ -20,11 +20,13 @@ $(function() {
 
   function plotRoutes(lat, lon) {
 
+    console.log(new Date().getSeconds());
     $.get('api/routes', {
       lat : lat,
       lon : lon
     }, function(data, textStatus, jqXHR) {
-      console.log(routes);
+      console.log(new Date().getSeconds());
+      console.log(data);
     });
 
     // get all the stops
@@ -61,4 +63,3 @@ $(function() {
     });
   }
 })
-

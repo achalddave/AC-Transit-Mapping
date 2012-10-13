@@ -55,7 +55,7 @@ function getStops(lat, lon, radius, callback) {
   });
 }
 
-function getRoutes(lat, lon, radius, callback) {
+function getRoutePaths(lat, lon, radius, callback) {
   var stopsQuery = getStopsQuery(lat, lon, radius)
 
   var routesQuery = "SELECT route_id, trip_headsign, lat, lon, stop_code from (" + stopsQuery + ")a ";
@@ -152,3 +152,8 @@ function vehiclePrediction(routeId) {
       mainRes.end();
   });
 }
+
+exports.getRoutePaths = getRoutePaths;
+exports.getStops = getStops;
+exports.getRoutes = getRoutes;
+exports.vehiclePrediction = vehiclePrediction;

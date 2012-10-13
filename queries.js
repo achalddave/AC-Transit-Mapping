@@ -1,5 +1,5 @@
 var mysql = require("mysql"),
-    mysqlConf = require("mysqlConf"),
+    mysqlConf = require("./mysqlConf"),
     http = require('http'),
     url = require('url'),
     xml2js = require('xml2js'),
@@ -71,19 +71,18 @@ function getRoutePaths(lat, lon, radius, callback) {
   var connection = mysql.createConnection({
     "hostname": "localhost",
     "user": "root",
-    "password": mysqlPass.pass,
+    "password": mysqlConf.pass,
     "database": "gtfs"
   });
 
   connection.connect();
 
-  connection.query(routesQuery, function(err, rows, fields) {
+  connection.query(pathsQuery, function(err, rows, fields) {
     if (err) {
       console.log("Aw snap, MySQL query didn't work.");
       throw err;
     }
 
-    console.log(rows);
     callback(rows);
   });
 }

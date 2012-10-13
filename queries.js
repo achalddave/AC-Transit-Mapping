@@ -118,8 +118,10 @@ function getPredictionsFromStops(lat, lon, radius, callback) {
           throw err;
         }
         var stopCodes = [];
+        console.log("...................."+rows);
         for (var row in rows) {
-          stopCodes.push(rows[row].stop_code);
+          stopCodes.push(rows[row].stopTag);
+          console.log("...................."+row);
         }
         getRoutes(stopCodes);
         // return object to pool

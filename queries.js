@@ -29,8 +29,7 @@ function getStopsQuery(lat, lon, radius) {
 function getStops(lat, lon, radius, callback) {
   var connection = mysql.createConnection({
     "hostname": "localhost",
-    "user": "root",
-    "password": mysqlConf.pass,
+    "user": mysqlConf.user,
     "database": "gtfs"
   });
 
@@ -70,8 +69,7 @@ function getRoutePaths(lat, lon, radius, callback) {
 
   var connection = mysql.createConnection({
     "hostname": "localhost",
-    "user": "root",
-    "password": mysqlConf.pass,
+    "user": mysqlConf.user,
     "database": "gtfs"
   });
 

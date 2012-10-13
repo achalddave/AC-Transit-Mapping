@@ -39,21 +39,30 @@ $(function() {
       lat : lat,
       lon : lon
     }, function(data, textStatus, jqXHR) {
-      console.log(new Date().getSeconds());
       console.log(data);
-      var path = []
-      console.log(data);
+      var paths = {};
       for (var i = 0; i < data.length; i++) {
+        var key = data[i].route_id + "|" + data[i].trip_headsign;
+        if (!paths[key]) {
+          paths[key] = []
+        }
+        var path = paths[key];
+
         var point = data[i];
         path.push(new google.maps.LatLng(point.lat, point.lon));
-        if (i == data.length - 1) {
-          var polyline = new google.maps.Polyline({
-            path : path,
-            strokeColor : "#FF0000"
-          });
 
-          console.log("Setting polyline");
-          polyline.setMap(map);
+        if (i == data.length - 1) {
+          for (var key in paths) {
+            console.log("Setting path for ", key);
+            var path = paths[key];
+            console.log(path);
+            var polyline = new google.maps.Polyline({
+              path : path,
+              strokeColor : "#FF0000"
+            });
+
+            polyline.setMap(map);
+          }
         }
       }
     });

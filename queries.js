@@ -144,13 +144,14 @@ function getRoutes(stops) {
       res.setEncoding('utf8');
       res.on('data',function(chunk){
         parser.parseString(chunk,function(err,result){
-          try{
-            for(var i in result){
-              vehiclePrediction(result[i]['routeTag']);
-            }
+          if (err) {
+              console.log("error in getRoutes()");
+              throw err;
           }
-          catch(e){
-            console.log("NextBus getRoutes error");
+          else {
+            for(var i in result.body.predictions){
+              vehiclePrediction(result.body.predictions[i]['$']['routeTag']);
+            }
           }
         });
       })
@@ -167,28 +168,17 @@ function vehiclePrediction(routeId) {
     res.setEncoding('utf8');
     res.on('data',function(chunk){
       parser.parseString(chunk,function(err,result){
-        try{
-          for(var i in result){
-            var output = "";
-            var busId = result['id'];
-            output+="Bus ID: "+busId+", ";
-            var routeTag = result['routeTag'];
-            output+="Route Tag: "+routeTag+", ";
-            var dirTag = result['out'];
-            var lat = result['lat'];
-            output+="Location: ("+lat+",";
-            var lon = result['lon'];
-            output+=lon+"), ";
-            var secsPassed = result['secsSinceLastReport'];
-            output+="Time Passed: "+secsPassed+", ";
-            var predictable = result['predictable'];
-            output+= "Predictable: "+predictable;
-            console.log(output);
-          }
+        if (err) {
+            console.log("fail in vehiclePrediction()");
+            throw err;
         }
-        catch(e){
-          console.log("Error in getting bus data");
-          console.log("NextBus vehiclePrediction data error");
+        else {
+          for (var i in result.body.vehicle) {
+            var lat = result.body.vehicle[i]['$'].lat;
+            var lon = result.body.vehicle[i]['$'].lon;
+            var secsSinceReport = result.body.vehicle[i]['$'].secsSinceReport;
+            console.log("("+lat+", "+lon+") since "+secsSinceReport+" sec ago");
+          }
         }
       });
       });

@@ -83,7 +83,7 @@ google.maps.LatLng.prototype.destinationPoint = function(brng, dist) {
 <option value="48">48</option> \
 <option value="49">49</option> \
 <option value="51A">51A</option> \
-<option value="51B">51B</option> \
+<option value="51B" selected="selected">51B</option> \
 <option value="52">52</option> \
 <option value="54">54</option> \
 <option value="57">57</option> \
@@ -289,7 +289,7 @@ google.maps.LatLng.prototype.destinationPoint = function(brng, dist) {
         var lat = $(this).attr("lat");
         var lon = $(this).attr("lon");
 
-        var image = 'img/bus.png';
+        var image = 'bus.gif';
         var myLatLng = new google.maps.LatLng(lat, lon);
         var extrapolatedLatLng = myLatLng.destinationPoint(parseInt($(this).attr("heading")), parseFloat($(this).attr("speedKmHr"))*parseFloat($(this).attr("secsSinceReport"))/3600);
         

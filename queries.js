@@ -1,4 +1,4 @@
-var mysql = require("mysql");
+var mysql = require('mysql');
 var http = require('http'),
     url = require('url'),
     xml2js = require('xml2js');
@@ -35,7 +35,7 @@ function getRoutes(stops) {
     // vehicle
     var options = {
       host: 'http://webservices.nextbus.com',
-      path: '/service/publicXMLFeed?command=predictions&a=actransit&stopId='+stop;
+      path: '/service/publicXMLFeed?command=predictions&a=actransit&stopId='+stop
     }
     http.get(options,function(res){
       res.setEncoding('utf8');
@@ -52,7 +52,7 @@ function getRoutes(stops) {
         });
       })
   });
-  }
+  });
 }
 
 function vehiclePrediction(routeId) {

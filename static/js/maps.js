@@ -2,10 +2,12 @@ $(function() {
 
   var jMapDiv = $("#mapCanvas");
   var map;
+  var markers = [];
 
   navigator.geolocation.getCurrentPosition(function(position) {
     mapSetup(position);
     plotRoutes();
+    plotNearStops();
   });
 
   function mapSetup(position) {
@@ -17,6 +19,36 @@ $(function() {
     }
 
     map = new google.maps.Map(jMapDiv[0], mapOptions);
+    google.maps.event.addListener(map,'center_changed',plotNearStops());
+  }
+
+  function plotNearStops(){
+    for(var i = 0; i< markers.length;i++){
+      markers[i].setMap(null);
+    }
+    var request = {
+      location: map.getCenter(),
+      radius: 500,
+      types: ['bus_station']
+    };
+    service = new google.maps.places.PlacesService(map);
+    service.search(request,searchCallback);
+  }
+  function searchCallback(results,status) {
+    if(status == google.maps.places.PlacesServiceStatus.OK){
+      for(var i = 0;i<results.length;i++){
+        createMarker(results[i]);
+      }
+    }
+  }
+  function createMarker(place){
+    var placeLoc = place.geometry.location;
+    var marker = new google.maps.Marker({
+      map: map
+      position: place.geometry.location
+    });
+    markers.push(marker);
+    marker.setTitle(place.name);
   }
 
   function plotRoutes() {

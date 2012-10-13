@@ -52,7 +52,8 @@ google.maps.LatLng.prototype.destinationPoint = function(brng, dist) {
 
   navigator.geolocation.getCurrentPosition(function(position) {
     mapSetup(position);
-    plotRoutes(position);
+    plot51BRoute();
+    // plotRoutes(position);
     get51B();
   });
   
@@ -114,6 +115,32 @@ google.maps.LatLng.prototype.destinationPoint = function(brng, dist) {
 
     map = new google.maps.Map(jMapDiv[0], mapOptions);
   }
+
+/*
+  function plot51BRoute() {
+    var routeId = "51B";
+    var color = "#5B76A0";
+    $.get("http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=actransit&r="+routeId, function(res){
+      console.log(res);
+      var parsed = $.parseXML(res);
+      console.log(parsed);
+      $(res).find("path").each(function() {
+          // "this" is a <path> full of <points>
+          var path = [];
+          $(this).find("point").each(function() {
+            path.push(new google.maps.LatLng(this.lat, this.lon));
+          });
+          var polyline = new google.maps.Polyline({
+            path: path,
+            strokeColor: color,
+            strokeWeight: 5,
+            visible: true
+          });
+          polyline.setMap(map);
+      });
+    });
+  }
+*/
 
   function plotRoutes(position) {
     var lat = position.coords.latitude,

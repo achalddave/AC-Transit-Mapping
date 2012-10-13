@@ -344,4 +344,8 @@ google.maps.LatLng.prototype.destinationPoint = function(brng, dist) {
       }
     });
   }
-})
+
+  $('#button').click(function() {
+    plotRoute($('#routeSelector').val());
+  });
+});

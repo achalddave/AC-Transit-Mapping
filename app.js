@@ -22,7 +22,11 @@ app.get("/test", function(req, res) {
         externalScripts.maps,
         externalScripts.jQuery
       ],
-      local : ["maps.js"]
+      local : [
+        "maps.js",
+        "selectToAutocomplete/jquery.select-to-autocomplete.min.js",
+        "selectToAutocomplete/jquery-ui-autocomplete.min.js",
+      ]
     },
     styles: {
       local : ["home.css"]

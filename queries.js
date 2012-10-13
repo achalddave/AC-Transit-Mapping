@@ -136,8 +136,9 @@ function getPredictionsFromStops(lat, lon, radius, callback) {
 function getRoutesByKeyword(keyword, callback) {
   var query = "SELECT route_id, trip_headsign, shape_pt_lat as lat, shape_pt_lon as lon, shape_pt_sequence";
   query += " FROM trip_shapes ";
-  query += " WHERE route_id REGEXP '"+keyword+"-[1-9]+'";
+  query += " WHERE route_id REGEXP '^"+keyword+"-[1-9]+$'";
 
+  console.log(query);
   pool.acquire(function(err, client) {
     if (err) {
       console.log("MySQL Error in getRoutesByKeyword()");

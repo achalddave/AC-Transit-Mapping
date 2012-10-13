@@ -1,4 +1,5 @@
 var mysql = require("mysql"),
+    mysqlConf = require("mysqlConf"),
     http = require('http'),
     url = require('url'),
     xml2js = require('xml2js'),
@@ -29,7 +30,7 @@ function getStops(lat, lon, radius, callback) {
   var connection = mysql.createConnection({
     "hostname": "localhost",
     "user": "root",
-    "password": "",
+    "password": mysqlConf.pass,
     "database": "gtfs"
   });
 
@@ -69,7 +70,7 @@ function getRoutePaths(lat, lon, radius, callback) {
   var connection = mysql.createConnection({
     "hostname": "localhost",
     "user": "root",
-    "password": "",
+    "password": mysqlPass.pass,
     "database": "gtfs"
   });
 

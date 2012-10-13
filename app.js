@@ -30,8 +30,12 @@ app.get("/test", function(req, res) {
   });
 });
 
-app.get("/query", function(req, res) {
-  console.log("Received request for", req.query);
+app.get("/api/stops", function(req, res) {
+  console.log("Hey.");
   res.set('Content-Type', 'application/json');
-  queries.getShapes(req.query.route, req.query.headsign, function(data) { res.send(data); });
+  queries.getStops(req.query.lat, req.query.lon, req.query.radius, function(data) { res.send(data); });
+});
+
+app.get("/api/routes", function(req, res) {
+
 });

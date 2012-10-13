@@ -2,3 +2,6 @@ config.js
 *.swp
 node_modules/
 node_modules/*
+node_modules\
+node_modules\*
+mysqlConf.js

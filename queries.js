@@ -1,4 +1,5 @@
 var mysql = require("mysql"),
+    mysqlConf = require("mysqlConf"),
     http = require('http'),
     url = require('url'),
     xml2js = require('xml2js'),
@@ -20,6 +21,7 @@ function getStopsQuery(lat, lon, radius) {
   stopsQuery      += " AND ";
   stopsQuery      += "stop_lon BETWEEN " + minLon + " AND " + maxLon;
 
+  console.log(stopsQuery);
   return stopsQuery;
 }
 
@@ -28,7 +30,7 @@ function getStops(lat, lon, radius, callback) {
   var connection = mysql.createConnection({
     "hostname": "localhost",
     "user": "root",
-    "password": "",
+    "password": mysqlConf.pass,
     "database": "gtfs"
   });
 
@@ -59,7 +61,7 @@ function getRoutePaths(lat, lon, radius, callback) {
   var radius = typeof radius == "undefined" ? 0.01 : radius;
   var stopsQuery = getStopsQuery(lat, lon, radius)
 
-  var routesQuery = "SELECT route_id, trip_headsign from (" + stopsQuery + ")a ";
+  var routesQuery = "SELECT route_id, trip_headsign, lat, lon, stop_code from (" + stopsQuery + ")a ";
   routesQuery += " JOIN stop_times using (stop_id) ";
   routesQuery += " JOIN trips using (trip_id) ";
 
@@ -69,19 +71,19 @@ function getRoutePaths(lat, lon, radius, callback) {
   var connection = mysql.createConnection({
     "hostname": "localhost",
     "user": "root",
-    "password": "",
+    "password": mysqlPass.pass,
     "database": "gtfs"
   });
 
   connection.connect();
 
-  connection.query(pathsQuery, function(err, rows, fields) {
+  connection.query(routesQuery, function(err, rows, fields) {
     if (err) {
       console.log("Aw snap, MySQL query didn't work.");
       throw err;
     }
 
-    console.log("Finished query");
+    console.log(rows);
     callback(rows);
   });
 }

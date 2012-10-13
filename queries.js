@@ -38,14 +38,6 @@ function getStops(lat, lon, radius, callback) {
   var radius = typeof radius == "undefined" ? 0.02 : radius;
 
   var query = getStopsQuery(lat, lon, radius);
-  /*
-     var allTripsQuery = "select route_id, trip_headsign, shape_pt_lat, shape_pt_lon from (select route_id, trip_headsign, shape_id from trips group by route_id, trip_headsign)a join shapes using (shape_id)";
-
-     var allTripsQuery = "select route_id, trip_headsign, shape_pt_lat, shape_pt_lon from trip_shapes";
-
-     var query = 'SELECT DISTINCT shape_pt_lat as lat, shape_pt_lon as lon from trips JOIN shapes ON trips.shape_id=shapes.shape_id WHERE trips.route_id="'+route+'" AND trips.trip_headsign="'+headsign+'" ORDER BY shape_pt_sequence';
-     */
-
   connection.query(query, function(err, rows, fields) {
     if (err) {
       console.log("Aw snap, MySQL query didn't work.");

@@ -96,13 +96,12 @@ google.maps.LatLng.prototype.destinationPoint = function(brng, dist) {
 
   navigator.geolocation.getCurrentPosition(function(position) {
     mapSetup(position);
-    plotRoutes(position);
     get51B();
     var homeControlDiv = document.createElement('div');
     var homeControl = new HomeControl(homeControlDiv, map);
-
     homeControlDiv.index = 1;
     map.controls[google.maps.ControlPosition.TOP_RIGHT].push(homeControlDiv);
+    plotRoute("51b");
   });
   
   function clearBuses() {
@@ -186,6 +185,32 @@ google.maps.LatLng.prototype.destinationPoint = function(brng, dist) {
 
     map = new google.maps.Map(jMapDiv[0], mapOptions);
   }
+
+/*
+  function plot51BRoute() {
+    var routeId = "51B";
+    var color = "#5B76A0";
+    $.get("http://webservices.nextbus.com/service/publicXMLFeed?command=routeConfig&a=actransit&r="+routeId, function(res){
+      console.log(res);
+      var parsed = $.parseXML(res);
+      console.log(parsed);
+      $(res).find("path").each(function() {
+          // "this" is a <path> full of <points>
+          var path = [];
+          $(this).find("point").each(function() {
+            path.push(new google.maps.LatLng(this.lat, this.lon));
+          });
+          var polyline = new google.maps.Polyline({
+            path: path,
+            strokeColor: color,
+            strokeWeight: 5,
+            visible: true
+          });
+          polyline.setMap(map);
+      });
+    });
+  }
+*/
 
   function plotRoutes(position) {
     var lat = position.coords.latitude,
@@ -278,6 +303,39 @@ google.maps.LatLng.prototype.destinationPoint = function(brng, dist) {
         })(point);
 
         setTimeout(drop, i*200);
+      }
+    });
+  }
+
+  function plotRoute(keyword) {
+    // get routes by keyword
+    $.get('api/keywordRoute', {
+      keyword: keyword
+    }, function(data) {
+      // do stuff with data
+      // data is an array of objects with the following keys:
+      //    route_id, shape_pt_lat, shape_pt_lon, shape_pt_sequence,
+      //    trip_headsign
+      var paths = {};
+      var path = [];
+      for (var i in data) {
+        var point = data[i],
+            lat = point.lat,
+            lon = point.lon,
+            dir = point.trip_headsign;
+        if (!paths[dir]) {
+          paths[dir] = [];
+        }
+        paths[dir].push(new google.maps.LatLng(lat, lon));
+      }
+      for (var dir in paths) {
+        var path = paths[dir];
+        var polyline = new google.maps.Polyline({
+            path: path,
+            strokeColor: "#5B76A0",
+            strokeWeight: 5
+        });
+        polyline.setMap(map);
       }
     });
   }

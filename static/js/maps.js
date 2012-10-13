@@ -33,6 +33,10 @@ google.maps.LatLng.prototype.destinationPoint = function(brng, dist) {
   var busWithWindow;
   var busMarkers = new Array();
   
+  function changeMap(busName) {
+    alert(busName);
+  }
+  
   function HomeControl(controlDiv, map) {
 
   // Set CSS styles for the DIV containing the control
@@ -49,20 +53,21 @@ google.maps.LatLng.prototype.destinationPoint = function(brng, dist) {
   controlUI.style.textAlign = 'center';
   controlUI.title = 'Click to set the map to Home';
   controlDiv.appendChild(controlUI);
-
-  // Set CSS for the control interior.
-  var controlText = document.createElement('div');
-  controlText.style.fontFamily = 'Arial,sans-serif';
-  controlText.style.fontSize = '12px';
-  controlText.style.paddingLeft = '4px';
-  controlText.style.paddingRight = '4px';
-  controlText.innerHTML = '<strong>Home</strong>';
-  controlUI.appendChild(controlText);
+  
+  var chooserDiv = document.createElement('div');
+  chooserDiv.innerHTML = '<form style="float:left; "> \
+    <select name="mapchange" onchange="changeMap(this.options[this.selectedIndex].value)"> \
+        <option value="51B">51B</option> \
+        <option value="52">52</option> \
+    </select> \
+</form>';
+  controlUI.appendChild(chooserDiv);
+  controlDiv.appendChild(controlUI);
 
   // Setup the click event listeners: simply set the map to Chicago.
-  google.maps.event.addDomListener(controlUI, 'click', function() {
-    alert("test");
-  });
+  //google.maps.event.addDomListener(controlUI, 'click', function() {
+  //  alert("test");
+  //});
 }
   
   var tid = setInterval(intervalLoop, 10000);

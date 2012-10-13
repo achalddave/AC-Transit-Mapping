@@ -138,7 +138,6 @@ function getRoutesByKeyword(keyword, callback) {
   query += " FROM trip_shapes ";
   query += " WHERE route_id REGEXP '^"+keyword+"-[1-9]+$'";
 
-  console.log(query);
   pool.acquire(function(err, client) {
     if (err) {
       console.log("MySQL Error in getRoutesByKeyword()");

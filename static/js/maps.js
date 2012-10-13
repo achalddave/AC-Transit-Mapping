@@ -313,6 +313,7 @@ google.maps.LatLng.prototype.destinationPoint = function(brng, dist) {
   }
 
   function plotRoute(keyword) {
+    console.log(keyword);
     // get routes by keyword
     $.get('api/keywordRoute', {
       keyword: keyword
@@ -345,7 +346,12 @@ google.maps.LatLng.prototype.destinationPoint = function(brng, dist) {
     });
   }
 
-  $('#button').click(function() {
-    plotRoute($('#routeSelector').val());
+  // $('select').selectToAutocomplete();
+  $('form').submit(function(){
+    return false;
+  });
+  $('#submit').click(function() {
+    plotRoute($('#country-selector').val());
+    return false;
   });
 });

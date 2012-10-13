@@ -1,9 +1,37 @@
-var query = require("./queries"),
+var queries = require("./queries"),
+    externalScripts = require("./externalScripts"),
     express = require("express"),
     app = express();
-
 
 app.listen(9000);
 console.log("listening on default port 9000");
 
-query.getShapes("51B");
+// use ejs-locals for all ejs templates:
+var engine = require('ejs-locals');
+app.engine('ejs', engine);
+
+app.set('views',__dirname + '/views');
+app.set('view engine', 'ejs'); // so you can render('index')
+
+app.use(express.static(__dirname + "/static"));
+
+app.get("/test", function(req, res) {
+  res.render('home.ejs', { 
+    scripts: {
+      external : [
+        externalScripts.maps,
+        externalScripts.jQuery
+      ],
+      local : ["maps.js"]
+    },
+    styles: {
+      local : ["home.css"]
+    }
+  });
+});
+
+app.get("/query", function(req, res) {
+  console.log("Received request for", req.query);
+  res.set('Content-Type', 'application/json');
+  queries.getShapes(req.query.route, function(data) { res.send(data); });
+});

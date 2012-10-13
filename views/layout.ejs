@@ -1,0 +1,37 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<% 
+if (scripts.external) {
+  scripts.external.forEach(function(script) { %>
+<script src="<%- script %>"></script>
+<% 
+  });
+}%>
+
+<link rel="stylesheet" type="text/css" href="css/index.css">
+<% 
+if (styles.external) {
+  styles.external.forEach(function(style) { %>
+<link rel="stylesheet" type="text/css" href="<%-style%>" />
+<% 
+  });
+} %>
+
+<% styles.local.forEach(function(style) { %>
+<link rel="stylesheet" type="text/css" href="css/<%-style%>" />
+<% }); %>
+</head>
+<body>
+<div id="mainContainer">
+<%- body %>
+</div>
+</body>
+<% 
+if (scripts.local) {
+  scripts.local.forEach(function(script) { %>
+<script src="js/<%-script %>"></script>
+<% 
+  });
+}%>
+</html>

@@ -211,10 +211,6 @@ function vehiclePrediction(routeId) {
             // console.log("("+lat+", "+lon+") since "+secsSinceReport+" sec ago");
           }
         }
-        catch(e){
-          console.log("Error in getting bus data");
-          console.log("NextBus vehiclePrediction data error");
-        }
       });
     }).on("error",function(e){
       console.log("Error: "+e.message);

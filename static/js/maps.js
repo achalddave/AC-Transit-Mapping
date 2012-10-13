@@ -289,7 +289,7 @@ google.maps.LatLng.prototype.destinationPoint = function(brng, dist) {
         var lat = $(this).attr("lat");
         var lon = $(this).attr("lon");
 
-        var image = 'bus.gif';
+        var image = 'bus-icon.gif';
         var myLatLng = new google.maps.LatLng(lat, lon);
         var extrapolatedLatLng = myLatLng.destinationPoint(parseInt($(this).attr("heading")), parseFloat($(this).attr("speedKmHr"))*parseFloat($(this).attr("secsSinceReport"))/3600);
         

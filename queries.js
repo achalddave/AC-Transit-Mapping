@@ -7,6 +7,25 @@ var mysql = require("mysql"),
 
 var path = "/service/publicXMLFeed?command=vehicleLocations&a=actransit&r=<routeId>&t=0";
 
+// from https://github.com/coopernurse/node-pool/blob/master/README.md
+var poolModule = require('generic-pool');
+var pool = poolModule.Pool({
+    name     : 'mysql',
+    create   : function(callback) {
+        var Client = require('mysql').Client;
+        var c = new Client();
+        c.user     = mysqlConf.user;
+        c.database = 'gtfs';
+        c.connect();
+
+        callback(null, c);
+    },
+    destroy  : function(client) { client.end(); },
+    max      : 10,
+    idleTimeoutMillis : 30 * 1000,
+    log : fals 
+});
+
 function getStopsQuery(lat, lon, radius) {
   var lat = parseFloat(lat),
       lon = parseFloat(lon);

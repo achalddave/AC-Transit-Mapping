@@ -3,6 +3,7 @@ $(function() {
   var jMapDiv = $("#mapCanvas");
   var map;
   var markers = [];
+  var degreeRadius = 0.02;
 
   navigator.geolocation.getCurrentPosition(function(position) {
     mapSetup(position);
@@ -28,7 +29,7 @@ $(function() {
     }
     var request = {
       location: map.getCenter(),
-      radius: 500,
+      radius: 111.325*1000*degreeRadius,
       types: ['bus_station']
     };
     service = new google.maps.places.PlacesService(map);

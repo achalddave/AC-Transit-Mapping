@@ -44,7 +44,6 @@ function getStops(lat, lon, radius, callback) {
       throw err;
     }
 
-    console.log(rows);
     callback(rows);
   });
 }
@@ -76,6 +75,33 @@ function getRoutePaths(lat, lon, radius, callback) {
 
     callback(rows);
   });
+  
+}
+
+function getPredictionsFromStops(lat, lon, radius, callback) {
+  var radius = typeof radius == "undefined" ? 0.02 : radius;
+  var stopsQuery = getStopsQuery(lat, lon, radius)
+
+  var connection = mysql.createConnection({
+    "hostname": "localhost",
+    "user": mysqlConf.user,
+    "database": "gtfs"
+  });
+
+  connection.connect();
+
+  connection.query(stopsQuery, function(err, rows, fields) {
+    if (err) {
+      console.log("Aw snap, MySQL query didn't work.");
+      throw err;
+    }
+
+    var stopCodes = [];
+    for (var row in rows) {
+      stopCodes.push(rows[row].stop_code);
+    }
+    getRoutes(stopCodes);
+  });
 }
 
 function getRoutes(stops) {
@@ -83,10 +109,16 @@ function getRoutes(stops) {
     // stop = e.g. 50400
     // vehicle
     var options = {
-      host: 'http://webservices.nextbus.com',
+      host: 'webservices.nextbus.com',
       path: '/service/publicXMLFeed?command=predictions&a=actransit&stopId='+stop
     }
     http.get(options,function(res){
+      console.log("Got a response:", res);
+      console.log("---------------------");
+      console.log("---------------------");
+      console.log("---------------------");
+      console.log("---------------------");
+      console.log("---------------------");
       res.setEncoding('utf8');
       res.on('data',function(chunk){
         parser.parseString(chunk,function(err,result){
@@ -106,7 +138,7 @@ function getRoutes(stops) {
 
 function vehiclePrediction(routeId) {
   var options = {
-    host: 'http://webservices.nextbus.com',
+    host: 'webservices.nextbus.com',
     path: path.replace('<routeId>',routeId)
   }
   http.get(options, function(res){
@@ -129,21 +161,19 @@ function vehiclePrediction(routeId) {
             output+="Time Passed: "+secsPassed+", ";
             var predictable = result['predictable'];
             output+= "Predictable: "+predictable;
-            mainRes.write(output);
+            console.log(output);
           }
         }
         catch(e){
-          mainRes.write("Error in getting bus data");
+          console.log("Error in getting bus data");
           console.log("NextBus vehiclePrediction data error");
         }
       });
       });
       res.on('end',function(){
-        mainRes.end();
       });
     }).on("error",function(e){
       console.log("Error: "+e.message);
-      mainRes.end();
   });
 }
 
@@ -151,3 +181,4 @@ exports.getRoutePaths = getRoutePaths;
 exports.getStops = getStops;
 exports.getRoutes = getRoutes;
 exports.vehiclePrediction = vehiclePrediction;
+exports.getPredictionsFromStops = getPredictionsFromStops;

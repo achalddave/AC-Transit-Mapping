@@ -1,4 +1,10 @@
-var mysql = require("mysql");
+var mysql = require("mysql"),
+    http = require('http'),
+    url = require('url'),
+    xml2js = require('xml2js'),
+    parser = new xml2js.Parser();
+
+var path = "/service/publicXMLFeed?command=vehicleLocations&a=actransit&r=<routeId>&t=0";
 
 function getStopsQuery(lat, lon, radius) {
   var lat = parseFloat(lat),
@@ -78,5 +84,71 @@ function getRoutes(lat, lon, radius, callback) {
   });
 }
 
-exports.getStops = getStops;
-exports.getRoutes = getRoutes;
+function getRoutes(stops) {
+  stops.forEach(function(stop) {
+    // stop = e.g. 50400
+    // vehicle
+    var options = {
+      host: 'http://webservices.nextbus.com',
+      path: '/service/publicXMLFeed?command=predictions&a=actransit&stopId='+stop
+    }
+    http.get(options,function(res){
+      res.setEncoding('utf8');
+      res.on('data',function(chunk){
+        parser.parseString(chunk,function(err,result){
+          try{
+            for(var i in result){
+              vehiclePrediction(result[i]['routeTag']);
+            }
+          }
+          catch(e){
+            console.log("NextBus getRoutes error");
+          }
+        });
+      })
+    });
+  });
+}
+
+function vehiclePrediction(routeId) {
+  var options = {
+    host: 'http://webservices.nextbus.com',
+    path: path.replace('<routeId>',routeId)
+  }
+  http.get(options, function(res){
+    res.setEncoding('utf8');
+    res.on('data',function(chunk){
+      parser.parseString(chunk,function(err,result){
+        try{
+          for(var i in result){
+            var output = "";
+            var busId = result['id'];
+            output+="Bus ID: "+busId+", ";
+            var routeTag = result['routeTag'];
+            output+="Route Tag: "+routeTag+", ";
+            var dirTag = result['out'];
+            var lat = result['lat'];
+            output+="Location: ("+lat+",";
+            var lon = result['lon'];
+            output+=lon+"), ";
+            var secsPassed = result['secsSinceLastReport'];
+            output+="Time Passed: "+secsPassed+", ";
+            var predictable = result['predictable'];
+            output+= "Predictable: "+predictable;
+            mainRes.write(output);
+          }
+        }
+        catch(e){
+          mainRes.write("Error in getting bus data");
+          console.log("NextBus vehiclePrediction data error");
+        }
+      });
+      });
+      res.on('end',function(){
+        mainRes.end();
+      });
+    }).on("error",function(e){
+      console.log("Error: "+e.message);
+      mainRes.end();
+  });
+}

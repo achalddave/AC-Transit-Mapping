@@ -42,6 +42,7 @@ $(function() {
       console.log(new Date().getSeconds());
       console.log(data);
       var path = []
+      console.log(data);
       for (var i = 0; i < data.length; i++) {
         var point = data[i];
         path.push(new google.maps.LatLng(point.lat, point.lon));

@@ -25,8 +25,11 @@ $(function() {
       lat : lat,
       lon : lon
     }, function(data, textStatus, jqXHR) {
-      console.log(new Date().getSeconds());
-      console.log(data);
+      var path = []
+      for (var i = 0; i < data.length; i++) {
+        var point = data[i];
+        path.push(new google.maps.LatLng(point.lat, point.lon));
+      }
     });
 
     // get all the stops

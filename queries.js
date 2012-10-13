@@ -63,7 +63,7 @@ function getRoutePaths(lat, lon, radius, callback) {
   routesQuery += " JOIN stop_times using (stop_id) ";
   routesQuery += " JOIN trips using (trip_id) ";
 
-  var pathsQuery = "SELECT shape_pt_lat, shape_pt_lon from ("+routesQuery+")a ";
+  var pathsQuery = "SELECT shape_pt_lat as lat, shape_pt_lon as lon from ("+routesQuery+")a ";
   pathsQuery += "join trip_shapes t using (route_id, trip_headsign)";
 
   var connection = mysql.createConnection({

@@ -133,6 +133,30 @@ function getPredictionsFromStops(lat, lon, radius, callback) {
   });
 }
 
+function getRoutesByKeyword(keyword, callback) {
+  var query = "SELECT route_id, trip_headsign, shape_pt_lat, shape_pt_lon, shape_pt_sequence";
+  query += " FROM trip_shapes ";
+  query += " WHERE route_id REGEXP '"+keyword+"-[1-9]+'";
+
+  pool.acquire(function(err, client) {
+    if (err) {
+      console.log("MySQL Error in getRoutesByKeyword()");
+    }
+    else {
+      client.query(query, function(err, rows, fields) {
+        if (err) {
+          console.log("MySQL error in getRoutesByKeywords()");
+          throw err;
+        }
+        console.log(query);
+        callback(rows);
+        pool.release(client);
+      });
+    }
+  })
+}
+
+
 function getRoutes(stops) {
   stops.forEach(function(stop) {
     console.log("STOP: "+stop);
@@ -172,27 +196,19 @@ function vehiclePrediction(routeId) {
     res.setEncoding('utf8');
     var myData = "";
     res.on('data',function(chunk){
-      parser.parseString(chunk,function(err,result){
-        result = result['body']['vehicle'];
-        try{
-          for(var i in result){
-            var bus = result[i]['$'];
-            console.log(bus['id']);
-            var output = "";
-            var busId = bus['id'];
-            output+="Bus ID: "+busId+", ";
-            var routeTag = bus['routeTag'];
-            output+="Route Tag: "+routeTag+", ";
-            var dirTag = bus['out'];
-            var lat = bus['lat'];
-            output+="Location: ("+lat+",";
-            var lon = bus['lon'];
-            output+=lon+"), ";
-            var secsPassed = bus['secsSinceReport'];
-            output+="Time Passed: "+secsPassed+", ";
-            var predictable = bus['predictable'];
-            output+= "Predictable: "+predictable;
-            console.log(output);
+      myData += chunk;
+    }).on('end', function() {
+      parser.parseString(myData,function(err,result){
+        if (err) {
+          console.log("fail in vehiclePrediction()");
+          throw err;
+        }
+        else {
+          for (var i in result.body.vehicle) {
+            var lat = result.body.vehicle[i]['$'].lat;
+            var lon = result.body.vehicle[i]['$'].lon;
+            var secsSinceReport = result.body.vehicle[i]['$'].secsSinceReport;
+            // console.log("("+lat+", "+lon+") since "+secsSinceReport+" sec ago");
           }
         }
         catch(e){
@@ -209,5 +225,6 @@ function vehiclePrediction(routeId) {
 exports.getRoutePaths = getRoutePaths;
 exports.getStops = getStops;
 exports.getRoutes = getRoutes;
+exports.getRoutesByKeyword = getRoutesByKeyword;
 exports.vehiclePrediction = vehiclePrediction;
 exports.getPredictionsFromStops = getPredictionsFromStops;

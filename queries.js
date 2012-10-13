@@ -1,8 +1,6 @@
 var mysql = require("mysql");
 
-var routeShapeQuery = 'SELECT DISTINCT shapes.shape_id FROM routes JOIN trips USING (route_id) JOIN shapes ON trips.shape_id=shapes.shape_id WHERE routes.route_short_name="51b"';
-
-function getShapes(route, callback) {
+function getShapes(route, headsign, callback) {
   var connection = mysql.createConnection({
     "hostname": "localhost",
     "user": "root",
@@ -12,8 +10,7 @@ function getShapes(route, callback) {
 
   connection.connect();
 
-  var query = 'SELECT DISTINCT shape_pt_lat as lat, shape_pt_lon as lon FROM routes JOIN trips USING (route_id) JOIN shapes ON trips.shape_id=shapes.shape_id WHERE routes.route_short_name="'+route+'" ORDER BY shape_pt_sequence';
-
+  var query = 'SELECT DISTINCT shape_pt_lat as lat, shape_pt_lon as lon from trips JOIN shapes ON trips.shape_id=shapes.shape_id WHERE trips.route_id="'+route+'" AND trips.trip_headsign="'+headsign+'" ORDER BY shape_pt_sequence';
 
   connection.query(query, function(err, rows, fields) {
     if (err) {
@@ -21,6 +18,7 @@ function getShapes(route, callback) {
       throw err;
     }
 
+    console.log(rows);
     callback(rows);
   });
 }

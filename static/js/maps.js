@@ -22,13 +22,13 @@ $(function() {
   function plotRoutes() {
     var points = []
     $.get('query', {
-      route : '51B'
+      route : '51B-93',
+      headsign : "51B Rockridge Bart"
     }, function(data, textStatus, jqXHR) {
       for (var i = 0; i < data.length; i++) {
         var point = data[i];
         points.push(new google.maps.LatLng(point.lat, point.lon));
         if (i == data.length-1) {
-          console.log("Plotting line");
           console.log(points);
           var path = new google.maps.Polyline({
             path : points,

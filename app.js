@@ -33,5 +33,5 @@ app.get("/test", function(req, res) {
 app.get("/query", function(req, res) {
   console.log("Received request for", req.query);
   res.set('Content-Type', 'application/json');
-  queries.getShapes(req.query.route, function(data) { res.send(data); });
+  queries.getShapes(req.query.route, req.query.headsign, function(data) { res.send(data); });
 });

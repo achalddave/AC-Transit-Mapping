@@ -68,7 +68,7 @@ $(function() {
             var polyline = new google.maps.Polyline({
               path : path,
               strokeColor : get_random_color(),
-              strokeWeight: 14
+              strokeWeight: 5
             });
 
             polyline.setMap(map);

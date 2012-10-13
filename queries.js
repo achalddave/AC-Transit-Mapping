@@ -65,7 +65,6 @@ function getStops(lat, lon, radius, callback) {
           console.log("MySQL error in getStops()");
           throw err;
         }
-        console.log(rows);
         callback(rows);
         // return object back to pool
         pool.release(client);

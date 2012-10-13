@@ -11,7 +11,8 @@
     "ejs-locals": "~0.2.5",
     "http": "0.0.0",
     "xml2js": "~0.2.0",
-    "mysql": "~2.0.0-alpha3"
+    "mysql": "~2.0.0-alpha3",
+    "generic-pool": "~2.0.1"
   },
   "devDependencies": {},
   "optionalDependencies": {},

@@ -7,9 +7,34 @@ var mysql = require("mysql"),
 
 var path = "/service/publicXMLFeed?command=vehicleLocations&a=actransit&r=<routeId>&t=0";
 
+// from https://github.com/coopernurse/node-pool/blob/master/README.md
+var poolModule = require('generic-pool');
+var pool = poolModule.Pool({
+  name     : 'mysql',
+  create   : function(callback) {
+    var c = mysql.createConnection({
+      "hostname": "localhost",
+      "user": mysqlConf.user,
+      "database": "gtfs"
+    });
+    c.connect();
+
+    callback(null, c);
+  },
+    destroy  : function(connection) { connection.end(); },
+    max      : 10,
+    idleTimeoutMillis : 30 * 1000,
+    log : false
+});
+
+// radius from current location to check stops for
+var tolerance = 0.008;
+
 function getStopsQuery(lat, lon, radius) {
   var lat = parseFloat(lat),
       lon = parseFloat(lon);
+
+  var radius = typeof radius == "undefined" ? tolerance : radius;
 
   var minLat = lat-radius,
       maxLat = lat+radius,
@@ -27,29 +52,29 @@ function getStopsQuery(lat, lon, radius) {
 
 /* Radius in latitude/longitude steps */
 function getStops(lat, lon, radius, callback) {
-  var connection = mysql.createConnection({
-    "hostname": "localhost",
-    "user": mysqlConf.user,
-    "database": "gtfs"
-  });
-
-  connection.connect();
-
-  var radius = typeof radius == "undefined" ? 0.02 : radius;
-
   var query = getStopsQuery(lat, lon, radius);
-  connection.query(query, function(err, rows, fields) {
-    if (err) {
-      console.log("Aw snap, MySQL query didn't work.");
-      throw err;
-    }
 
-    callback(rows);
+  pool.acquire(function(err, client) {
+    if (err) {
+      // handle error - this is generally the err from your
+      // factory.create function  
+    }
+    else {
+      client.query(query, function(err, rows, fields) {
+        if (err) {
+          console.log("MySQL error in getStops()");
+          throw err;
+        }
+        console.log(rows);
+        callback(rows);
+        // return object back to pool
+        pool.release(client);
+      });
+    }
   });
 }
 
 function getRoutePaths(lat, lon, radius, callback) {
-  var radius = typeof radius == "undefined" ? 0.02 : radius;
   var stopsQuery = getStopsQuery(lat, lon, radius)
 
   var routesQuery = "SELECT route_id, trip_headsign, lat, lon, stop_code from (" + stopsQuery + ")a ";
@@ -59,48 +84,48 @@ function getRoutePaths(lat, lon, radius, callback) {
   var pathsQuery = "SELECT shape_pt_lat as lat, shape_pt_lon as lon from ("+routesQuery+")a ";
   pathsQuery += "join trip_shapes t using (route_id, trip_headsign)";
 
-  var connection = mysql.createConnection({
-    "hostname": "localhost",
-    "user": mysqlConf.user,
-    "database": "gtfs"
-  });
-
-  connection.connect();
-
-  connection.query(pathsQuery, function(err, rows, fields) {
+  pool.acquire(function(err, client) {
     if (err) {
-      console.log("Aw snap, MySQL query didn't work.");
-      throw err;
+        // handle error
     }
-
-    callback(rows);
+    else {
+      client.query(pathsQuery, function(err, rows, fields) {
+        if (err) {
+          console.log("MySQL error in getRoutePaths()");
+          throw err;
+        }
+        console.log(rows);
+        callback(rows);
+        // return object to pool
+        pool.release(client);
+      });
+    }
   });
   
 }
 
 function getPredictionsFromStops(lat, lon, radius, callback) {
-  var radius = typeof radius == "undefined" ? 0.02 : radius;
   var stopsQuery = getStopsQuery(lat, lon, radius)
 
-  var connection = mysql.createConnection({
-    "hostname": "localhost",
-    "user": mysqlConf.user,
-    "database": "gtfs"
-  });
-
-  connection.connect();
-
-  connection.query(stopsQuery, function(err, rows, fields) {
+  pool.acquire(function(err, client) {
     if (err) {
-      console.log("Aw snap, MySQL query didn't work.");
-      throw err;
+        // handle error
     }
-
-    var stopCodes = [];
-    for (var row in rows) {
-      stopCodes.push(rows[row].stop_code);
+    else {
+      client.query(stopsQuery, function(err, rows, fields) {
+        if (err) {
+          console.log("MySQL error in getPredictionsFromStops()");
+          throw err;
+        }
+        var stopCodes = [];
+        for (var row in rows) {
+          stopCodes.push(rows[row].stop_code);
+        }
+        getRoutes(stopCodes);
+        // return object to pool
+        pool.release(client);
+      });
     }
-    getRoutes(stopCodes);
   });
 }
 

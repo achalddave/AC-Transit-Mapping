@@ -5,12 +5,14 @@ $(function() {
 
   navigator.geolocation.getCurrentPosition(function(position) {
     mapSetup(position);
-    plotRoutes(position.coords.latitude, position.coords.longitude);
+    plotRoutes(position);
   });
 
   function mapSetup(position) {
+    var lat = 37.875489;
+    var lon = -122.245544;
     var mapOptions = {
-      center: new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
+      center: new google.maps.LatLng(lat, lon),
       zoom: 15,
       mapTypeId: google.maps.MapTypeId.ROADMAP
     }
@@ -18,9 +20,21 @@ $(function() {
     map = new google.maps.Map(jMapDiv[0], mapOptions);
   }
 
-  function plotRoutes(lat, lon) {
+  function plotRoutes(position) {
+    var lat = position.coords.latitude,
+        lon = position.coords.longitude;
+
+    lat = 37.875489;
+    lon = -122.245544;
 
     console.log(new Date().getSeconds());
+    $.get('api/prediction', {
+      lat : lat,
+      lon : lon
+    }, function(data, textStatus, jqXHR) {
+      console.log("Hey");
+    });
+
     $.get('api/routes', {
       lat : lat,
       lon : lon

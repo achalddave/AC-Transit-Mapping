@@ -38,5 +38,9 @@ app.get("/api/stops", function(req, res) {
 });
 
 app.get("/api/routes", function(req, res) {
-  queries.getRoutePaths(req.query.lat, req.query.lon, req.query.radius, function(data) { res.send(data); })
+  queries.getRoutePaths(req.query.lat, req.query.lon, req.query.radius, function(data) { res.send(data); });
+});
+
+app.get("/api/prediction", function(req, res) {
+  queries.getPredictionsFromStops(req.query.lat, req.query.lon, req.query.radius, function(data) { res.send(data); });
 });

@@ -1,12 +1,107 @@
 $(function() {
 
+Number.prototype.toRad = function() {
+   return this * Math.PI / 180;
+}
+
+Number.prototype.toDeg = function() {
+   return this * 180 / Math.PI;
+}
+
+google.maps.LatLng.prototype.destinationPoint = function(brng, dist) {
+   dist = dist / 6371;  
+   brng = brng.toRad();  
+
+   var lat1 = this.lat().toRad(), lon1 = this.lng().toRad();
+
+   var lat2 = Math.asin(Math.sin(lat1) * Math.cos(dist) + 
+                        Math.cos(lat1) * Math.sin(dist) * Math.cos(brng));
+
+   var lon2 = lon1 + Math.atan2(Math.sin(brng) * Math.sin(dist) *
+                                Math.cos(lat1), 
+                                Math.cos(dist) - Math.sin(lat1) *
+                                Math.sin(lat2));
+
+   if (isNaN(lat2) || isNaN(lon2)) return null;
+
+   return new google.maps.LatLng(lat2.toDeg(), lon2.toDeg());
+}
+
   var jMapDiv = $("#mapCanvas");
   var map;
+  var openInfoWindow;
+  var busMarkers = new Array();
+  
+  var tid = setInterval(intervalLoop, 10000);
+  function intervalLoop() {
+    get51B();
+  }
+  function abortTimer() {
+    clearInterval(tid);
+  }
+  
+  var glid = setInterval(graphicalLoop, 50);
+  function graphicalLoop() {
+    for(index in busMarkers) {
+      var bus = busMarkers[index];
+      var elapsed = Date.now()-bus.reportTime;
+      var extrapolatedLatLng = bus.originalLatLng.destinationPoint(bus.bearing, bus.speed*(bus.timeSinceRefresh/3600+elapsed/3600000));
+      bus.setPosition(extrapolatedLatLng);
+    }
+  }
 
   navigator.geolocation.getCurrentPosition(function(position) {
     mapSetup(position);
     plotRoutes(position);
+    get51B();
   });
+  
+  function clearBuses() {
+    for(index in busMarkers) {
+      var bus = busMarkers[index];
+      bus.setMap(null);
+    }
+  }
+  
+  function get51B() {
+    clearBuses();
+    var routeId = '51B';
+    $.get("http://webservices.nextbus.com/service/publicXMLFeed?command=vehicleLocations&a=actransit&r="+routeId+"&t=0", function(res){
+      var parsed = $.parseXML(res);
+      $(res).find("vehicle").each(function() {
+        var lat = $(this).attr("lat");
+        var lon = $(this).attr("lon");
+
+        var image = 'bus-icon.gif';
+        var myLatLng = new google.maps.LatLng(lat, lon);
+        var extrapolatedLatLng = myLatLng.destinationPoint(parseInt($(this).attr("heading")), parseFloat($(this).attr("speedKmHr"))*parseFloat($(this).attr("secsSinceReport"))/3600);
+        var busMarker = new google.maps.Marker({
+          position: extrapolatedLatLng,
+          map: map,
+          icon: image
+        });
+        busMarker.originalLatLng = myLatLng;
+        busMarker.bearing = parseFloat($(this).attr("heading"));
+        busMarker.speed = parseFloat($(this).attr("speedKmHr"));
+        busMarker.reportTime = Date.now();
+        busMarker.timeSinceRefresh = parseFloat($(this).attr("secsSinceReport"));
+        busMarkers.push(busMarker);
+        var contentString = "<h1 style='font-family:Segoe UI; font-size:2em'>" + $(this).attr("routeTag") + "</h1>";
+        contentString += "<p style='font-family:Calibri'>Last updated "+$(this).attr("secsSinceReport")+" seconds ago";
+
+        var infowindow = new google.maps.InfoWindow({
+          content : contentString
+        });
+
+        google.maps.event.addListener(busMarker, 'click', function() {
+          if(openInfoWindow)
+            openInfoWindow.close();
+          infowindow.open(map,busMarker);
+          openInfoWindow = infowindow;
+        });
+      });
+    });
+  }
 
   function mapSetup(position) {
     var lat = 37.875489;
@@ -101,7 +196,10 @@ $(function() {
             });
 
             google.maps.event.addListener(marker, 'click', function() {
+              if(openInfoWindow)
+                openInfoWindow.close();
               infowindow.open(map,marker);
+              openInfoWindow = infowindow;
             });
           }
         })(point);

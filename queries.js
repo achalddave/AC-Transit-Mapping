@@ -159,6 +159,7 @@ function getRoutesByKeyword(keyword, callback) {
 
 function getRoutes(stops) {
   stops.forEach(function(stop) {
+    console.log("STOP: "+stop);
     // stop = e.g. 50400
     // vehicle
     var options = {
@@ -168,18 +169,15 @@ function getRoutes(stops) {
     http.get(options,function(res){
       var myData = "";
       res.on('data',function(chunk){
-        myData += chunk;
-      });
-      res.on('end', function() {
-        parser.parseString(myData, function(err, result) {
-          if (err) {
-              console.log("error in getRoutes()");
-              throw err;
-          }
-          else {
-            for(var i in result.body.predictions){
-              vehiclePrediction(result.body.predictions[i]['$']['routeTag']);
+
+        parser.parseString(chunk,function(err,result){
+          try{
+            for(var i in result['body']['predictions']){
+              vehiclePrediction(result['body']['predictions'][i]['$']['routeTag']);
             }
+          }
+          catch(e){
+            console.log("NextBus getRoutes error");
           }
         });
       });
@@ -188,9 +186,11 @@ function getRoutes(stops) {
 }
 
 function vehiclePrediction(routeId) {
+  console.log(routeId);
   var options = {
     host: 'webservices.nextbus.com',
-    path: path.replace('<routeId>',routeId)
+    //path: path.replace('<routeId>',routeId)
+    path:"/service/publicXMLFeed?command=vehicleLocations&a=actransit&r="+routeId+"&t=0"
   }
   http.get(options, function(res){
     res.setEncoding('utf8');
@@ -210,6 +210,10 @@ function vehiclePrediction(routeId) {
             var secsSinceReport = result.body.vehicle[i]['$'].secsSinceReport;
             // console.log("("+lat+", "+lon+") since "+secsSinceReport+" sec ago");
           }
+        }
+        catch(e){
+          console.log("Error in getting bus data");
+          console.log("NextBus vehiclePrediction data error");
         }
       });
     }).on("error",function(e){

@@ -6,6 +6,7 @@ var mysql = require("mysql"),
     parser = new xml2js.Parser();
 
 var path = "/service/publicXMLFeed?command=vehicleLocations&a=actransit&r=<routeId>&t=0";
+var thinningFactor = 30;
 
 // from https://github.com/coopernurse/node-pool/blob/master/README.md
 var poolModule = require('generic-pool');
@@ -81,7 +82,11 @@ function getRoutePaths(lat, lon, radius, callback) {
   routesQuery += " JOIN trips using (trip_id) ";
 
   var pathsQuery = "SELECT shape_pt_lat as lat, shape_pt_lon as lon from ("+routesQuery+")a ";
-  pathsQuery += "join trip_shapes t using (route_id, trip_headsign)";
+  pathsQuery += " join trip_shapes t using (route_id, trip_headsign)";
+  pathsQuery += " where shape_pt_sequence%"+thinningFactor+"=0 ";
+  pathsQuery += " order by shape_pt_sequence ";
+
+  console.log("\n" + pathsQuery + "\n");
 
   pool.acquire(function(err, client) {
     if (err) {
@@ -93,7 +98,6 @@ function getRoutePaths(lat, lon, radius, callback) {
           console.log("MySQL error in getRoutePaths()");
           throw err;
         }
-        console.log(rows);
         callback(rows);
         // return object to pool
         pool.release(client);
@@ -137,12 +141,6 @@ function getRoutes(stops) {
       path: '/service/publicXMLFeed?command=predictions&a=actransit&stopId='+stop
     }
     http.get(options,function(res){
-      console.log("Got a response:", res);
-      console.log("---------------------");
-      console.log("---------------------");
-      console.log("---------------------");
-      console.log("---------------------");
-      console.log("---------------------");
       res.setEncoding('utf8');
       res.on('data',function(chunk){
         parser.parseString(chunk,function(err,result){
